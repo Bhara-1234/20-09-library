@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Publishers</title>
+	<!-- Include Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<style>
+		/* Add custom styles here */
+		body {
+			padding: 20px;
+		}
+
+		/* Style the table */
+		table {
+			width: 100%;
+		}
+
+		header {
+			background-color: black;
+			color: white;
+			padding: 20px;
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1> Library Management</h1>
+	</header>
+	<div class="container">
+		<h1>Publishers List</h1>
+		<div class="form-group">
+			<button id="pub" class="btn btn-primary" onclick="getPublishers()">Get Publishers</button>
+		</div>
+		<table id="tab" class="table table-bordered"></table>
+	</div>
+
+	<!-- Include Bootstrap JS (optional) -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+	<script>
+		function getPublishers() {
+			var table = document.getElementById("tab");
+			table.innerHTML = ``;
+			var tr1 = document.createElement("tr");
+			var th1 = document.createElement("th");
+			var th2 = document.createElement("th");
+			var th3 = document.createElement("th");
+			th1.textContent = "PublisherId"
+			th2.textContent = "PublisherName"
+			th3.textContent = "TheirBooks"
+			tr1.appendChild(th1);
+			tr1.appendChild(th2);
+			tr1.appendChild(th3);
+			table.appendChild(tr1);
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/publishers", true);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4) {
+					if (xhr.status === 200) {
+						var data = JSON.parse(xhr.responseText);
+						var size = data.length;
+						var tab = document.getElementById("tab");
+						console.log(data);
+						data.forEach(function (x) {
+							var tr = document.createElement("tr");
+							var td1 = document.createElement("td");
+							var td2 = document.createElement("td");
+							var td3 = document.createElement("td"); // Change to td element
+							var link = document.createElement("a"); // Create an anchor tag
+							link.href = "booklist.html?publisherId=" + x.publisherid; // Set the href attribute to the destination HTML page
+							link.textContent = "BookList";
+							td1.textContent = x.publisherid;
+							td2.textContent = x.publishername;
+							td3.appendChild(link); // Append the anchor tag to the td element
+							tr.appendChild(td1);
+							tr.appendChild(td2);
+							tr.appendChild(td3);
+							tab.appendChild(tr);
+						});
+					} else {
+						// Handle errors or non-200 status codes here
+						console.error("Error: " + xhr.status);
+					}
+				}
+			}
+			xhr.send();
+		}
+	</script>
+
+
+</body>
+
+</html>

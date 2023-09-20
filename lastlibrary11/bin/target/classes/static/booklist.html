@@ -1,0 +1,320 @@
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Management</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Add custom styles here */
+        body {
+            padding: 20px;
+        }
+
+        /* Style the table */
+        table {
+            width: 100%;
+        }
+
+        /* Add more styles as needed */
+                header {
+            background-color: black;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+	 <header>
+        <h1> Library Management</h1>
+    </header>
+	<div class="container">
+       
+        <div class="form-group">
+            <button id="book" class="btn btn-primary" onclick="getBooks()">Get Publisher Books</button>
+        </div>
+        <div class="form-group">
+            <label for="bid">BookId:</label>
+            <input type="text" class="form-control" id="bid" readonly>
+        </div>
+        <div class="form-group">
+            <label for="pid">PublisherId:</label>
+            <input type="text" class="form-control" id="pid" readonly>
+        </div>
+        <div class="form-group">
+            <label for="is">IsbnNumber:</label>
+            <input type="text" class="form-control" id="is">
+        </div>
+        <div class="form-group">
+            <label for="price">Price:</label>
+            <input type="text" class="form-control" id="price">
+        </div>
+        <div class="form-group">
+            <label for="pages">Pages:</label>
+            <input type="text" class="form-control" id="pages">
+        </div>
+        <div class="form-group">
+            <button class="btn btn-success" onclick="addBook()">Add</button>
+            <button class="btn btn-primary" onclick="saveBook()">Save</button>
+            <button class="btn btn-secondary" onclick="firstBook()">First</button>
+            <button class="btn btn-secondary" onclick="lastBook()">Last</button>
+            <button class="btn btn-secondary" onclick="previousBook()">Previous</button>
+            <button class="btn btn-secondary" onclick="nextBook()">Next</button>
+        </div>
+        <table id="tab" class="table table-bordered"></table>
+    </div>
+
+    <!-- Include Bootstrap JS (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+	<script>
+					
+		var index = 0;
+
+
+
+		function getQueryParameter(parameterName) {
+			var urlParams = new URLSearchParams(window.location.search);
+			return urlParams.get(parameterName);
+		}
+
+		var publisherId = getQueryParameter("publisherId");
+		document.getElementById("pid").value = publisherId;
+
+		console.log("publisher");
+		console.log(publisherId);
+		function getBooks() {
+			var table = document.getElementById("tab");
+			table.innerHTML = ``;
+			var tr1 = document.createElement("tr");
+			var th1 = document.createElement("th");
+			var th2 = document.createElement("th");
+			var th3 = document.createElement("th");
+			var th4 = document.createElement("th");
+			var th5 = document.createElement("th");
+			var th6 = document.createElement("th");
+			var th7 = document.createElement("th");
+			th1.textContent = "BookId";
+			th2.textContent = "PublisherId";
+			th3.textContent = "IsbnNumber";
+			th4.textContent = "Price";
+			th5.textContent = "Pages";
+			th6.textContent = "UpdateBook";
+			th7.textContent = "DeleteBook"
+			tr1.appendChild(th1);
+			tr1.appendChild(th2);
+			tr1.appendChild(th3);
+			tr1.appendChild(th4);
+			tr1.appendChild(th5);
+			tr1.appendChild(th6);
+			tr1.appendChild(th7);
+			table.appendChild(tr1);
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/books/" + publisherId, true);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4) {
+					if (xhr.status === 200) {
+						var response = xhr.responseText;
+						if (response && response.trim() !== "") {
+							var data = JSON.parse(response);
+							var size = data.length;
+							var tab = document.getElementById("tab");
+							console.log(data);
+							data.forEach(function (x) {
+								var tr = document.createElement("tr");
+								var td1 = document.createElement("td");
+								var td2 = document.createElement("td");
+								var td4 = document.createElement("td");
+								var td6 = document.createElement("td");
+								var td7 = document.createElement("td");
+								var td3 = document.createElement("td");
+								var td5 = document.createElement("td");
+
+
+								var button = document.createElement("button");
+								var button2 = document.createElement("button");
+								button.onclick = function () {
+									updateBook(x);
+								}
+								button2.onclick = function () {
+									deleteBook(x.bookid);
+								}
+								button.textContent = "Update";
+								button2.textContent = "Delete";
+								td1.textContent = x.bookid;
+								td2.textContent = x.publisherid;
+								td4.textContent = x.isbnnumber
+								td6.textContent = x.price;
+								td7.textContent = x.pages;
+								td3.appendChild(button);
+								td5.appendChild(button2);
+								tr.appendChild(td1);
+								tr.appendChild(td2);
+								tr.appendChild(td4);
+								tr.appendChild(td6);
+								tr.appendChild(td7);
+								tr.appendChild(td3);
+								tr.appendChild(td5);
+								tab.appendChild(tr);
+							});
+						} else {
+							console.log("No books found.");
+						}
+					} else {
+						console.error("Error: " + xhr.status);
+					}
+				}
+			}
+			xhr.send();
+		}
+
+		function updateBook(x) {
+			document.getElementById("bid").value = x.bookid;
+			document.getElementById("pid").value = x.publisherid;
+			document.getElementById("is").value = x.isbnnumber;
+			document.getElementById("price").value = x.price;
+			document.getElementById("pages").value = x.pages;
+		}
+
+		function addBook() {
+			
+			var data = {
+				bookid: document.getElementById("bid").value,
+				publisherid: document.getElementById("pid").value,
+				isbnnumber: document.getElementById("is").value,
+				price: document.getElementById("price").value,
+				pages:document.getElementById("pages").value
+			};
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "/addBook", true);
+			xhr.setRequestHeader("Content-Type", "application/json");
+			var json = JSON.stringify(data);
+			xhr.send(json);
+			getBooks();
+		}
+
+		function deleteBook(id) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("DELETE", "/deleteBook/" + id, true);
+			xhr.send();
+			getBooks();
+		}
+
+		function saveBook() {
+			var data = {
+				bookid: document.getElementById("bid").value,
+				publisherid: document.getElementById("pid").value,
+				isbnnumber: document.getElementById("is").value,
+				price: document.getElementById("price").value,
+				pages:document.getElementById("pages").value
+			}
+			var json = JSON.stringify(data);
+			var xhr = new XMLHttpRequest();
+			xhr.open("PUT", "/save", true);
+			xhr.setRequestHeader("Content-Type", "application/json");
+			xhr.send(json);
+			getBooks();
+		}
+
+		function firstBook() {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/first/" + publisherId, true);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200) {
+					var data = JSON.parse(xhr.responseText);
+					console.log(data);
+					var bookid = document.getElementById("bid");
+					var publisherid = document.getElementById("pid");
+					var isbn = document.getElementById("is");
+					var price = document.getElementById("price");
+					var pages=document.getElementById("pages");
+					bookid.value = data.bookid;
+					publisherid.value = data.publisherid;
+					isbn.value = data.isbnnumber;
+					price.value=data.price;
+					pages.value=data.pages
+				}
+			}
+			xhr.send();
+		}
+
+		function lastBook() {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/last/"+ publisherId, true);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200) {
+					var data = JSON.parse(xhr.responseText);
+					console.log(data);
+					var bookid = document.getElementById("bid");
+					var publisherid = document.getElementById("pid");
+					var isbn = document.getElementById("is");
+					var price = document.getElementById("price");
+					var pages=document.getElementById("pages");
+					bookid.value = data.bookid;
+					publisherid.value = data.publisherid;
+					isbn.value = data.isbnnumber;
+					price.value=data.price;
+					pages.value=data.pages
+				}
+			}
+			xhr.send();
+		}
+
+		function nextBook() {
+			index++;
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/next/" + index+"/"+publisherId, true)
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200) {
+					var data = JSON.parse(xhr.responseText);
+					console.log(data);
+					var bookid = document.getElementById("bid");
+					var publisherid = document.getElementById("pid");
+					var isbn = document.getElementById("is");
+					var price = document.getElementById("price");
+					var pages=document.getElementById("pages");
+					bookid.value = data.bookid;
+					publisherid.value = data.publisherid;
+					isbn.value = data.isbnnumber;
+					price.value=data.price;
+					pages.value=data.pages
+				}
+			}
+			xhr.send();
+		}
+
+		function previousBook() {
+			if (index > 0) {
+				index--;
+				console.log("Previous index:", index); // Add this line for debugging
+				var xhr = new XMLHttpRequest();
+				xhr.open("GET", "/previous/" + index + "/" +publisherId, true);
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState === 4 && xhr.status === 200) {
+						var data = JSON.parse(xhr.responseText);
+						console.log(data);
+						var bookid = document.getElementById("bid");
+						var publisherid = document.getElementById("pid");
+						var isbn = document.getElementById("is");
+						var price = document.getElementById("price");
+						var pages=document.getElementById("pages");
+			
+						bookid.value = data.bookid;
+						publisherid.value = data.publisherid;
+						isbn.value = data.isbnnumber;
+						price.value=data.price;
+						pages.value=data.pages
+					}
+				}
+				xhr.send();
+			}
+		}
+	</script>
+</br>
+</html>
